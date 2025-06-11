@@ -2,6 +2,7 @@
   "name": "n8n-funnel-landing-page",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://irronroman19.github.io/n8n-funnel/",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
