@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  background: linear-gradient(135deg, #1a237e, #0d47a1);
+  background: linear-gradient(135deg, #062464, #064097);
   color: white;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .lead-form {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 2rem;
@@ -34,7 +34,7 @@
   max-width: 800px;
   text-align: center;
   width: 90%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .form-container {
@@ -90,7 +90,7 @@
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   padding: 2rem;
   border-radius: 10px;
   backdrop-filter: blur(5px);
