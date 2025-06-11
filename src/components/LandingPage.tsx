@@ -50,7 +50,7 @@ const LandingPage: React.FC = () => {
 
     try {
       // Replace this URL with your actual n8n webhook URL
-      const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
+      const response = await fetch('N8N_WEBHOOK_URL', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
