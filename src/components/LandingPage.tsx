@@ -7,22 +7,66 @@ interface LeadFormData {
   phone: string;
 }
 
+interface FormState {
+  isSubmitting: boolean;
+  isSuccess: boolean;
+  error: string | null;
+}
+
 const LandingPage: React.FC = () => {
   const [formData, setFormData] = useState<LeadFormData>({
     name: '',
     email: '',
     phone: ''
   });
+  const [formState, setFormState] = useState<FormState>({
+    isSubmitting: false,
+    isSuccess: false,
+    error: null
+  });
+
+  const validateForm = (): boolean => {
+    if (!formData.name.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your name' });
+      return false;
+    }
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid email address' });
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    setFormState({ isSubmitting: true, isSuccess: false, error: null });
+
     try {
-      // Here you would typically send the data to your backend
-      console.log('Submitting form data:', formData);
-      // Reset form after submission
+      // Replace this URL with your actual n8n webhook URL
+      const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      setFormState({ isSubmitting: false, isSuccess: true, error: null });
       setFormData({ name: '', email: '', phone: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
     }
   };
 
@@ -80,9 +124,25 @@ const LandingPage: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="submit-button">
-            Get Started
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={formState.isSubmitting}
+          >
+            {formState.isSubmitting ? 'Submitting...' : 'Get Started'}
           </button>
+          
+          {formState.error && (
+            <div className="error-message">
+              {formState.error}
+            </div>
+          )}
+          
+          {formState.isSuccess && (
+            <div className="success-message">
+              Thank you for your interest! We'll be in touch soon.
+            </div>
+          )}
         </form>
       </div>
 
