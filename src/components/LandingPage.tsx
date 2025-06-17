@@ -49,8 +49,7 @@ const LandingPage: React.FC = () => {
     setFormState({ isSubmitting: true, isSuccess: false, error: null });
 
     try {
-      // Replace this URL with your actual n8n webhook URL
-      const response = await fetch('N8N_WEBHOOK_URL', {
+      const response = await fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
