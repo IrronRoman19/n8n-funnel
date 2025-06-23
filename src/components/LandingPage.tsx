@@ -5,6 +5,9 @@ interface LeadFormData {
   name: string;
   email: string;
   phone: string;
+  website: string;
+  industry: string;
+  location: string;
 }
 
 interface FormState {
@@ -17,7 +20,10 @@ const LandingPage: React.FC = () => {
   const [formData, setFormData] = useState<LeadFormData>({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    website: '',
+    industry: '',
+    location: ''
   });
   const [formState, setFormState] = useState<FormState>({
     isSubmitting: false,
@@ -62,7 +68,7 @@ const LandingPage: React.FC = () => {
       }
 
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
-      setFormData({ name: '', email: '', phone: '' });
+      setFormData({ name: '', email: '', phone: '', website: '', industry: '', location: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
