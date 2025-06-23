@@ -32,18 +32,60 @@ const LandingPage: React.FC = () => {
   });
 
   const validateForm = (): boolean => {
+    // Name validation
     if (!formData.name.trim()) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your name' });
       return false;
     }
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (formData.name.trim().length < 2) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Name must be at least 2 characters long' });
+      return false;
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your email address' });
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid email address' });
       return false;
     }
+
+    // Phone validation
     if (!formData.phone.trim()) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
       return false;
     }
+    if (!/^\+?\d{10,15}$/.test(formData.phone.replace(/\D/g, ''))) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number (10-15 digits)' });
+      return false;
+    }
+
+    // Website validation
+    if (formData.website.trim()) {
+      if (!/^https?:\/\/[\w.-]+(?:\/[\w.-]*)*$/.test(formData.website)) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid website URL starting with http:// or https://' });
+        return false;
+      }
+    }
+
+    // Industry validation
+    if (formData.industry.trim()) {
+      if (formData.industry.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Industry must be at least 2 characters long' });
+        return false;
+      }
+    }
+
+    // Location validation
+    if (formData.location.trim()) {
+      if (formData.location.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Location must be at least 2 characters long' });
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -102,6 +144,7 @@ const LandingPage: React.FC = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              placeholder="Enter your full name"
             />
           </div>
           
@@ -114,6 +157,7 @@ const LandingPage: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="your.email@example.com"
             />
           </div>
           
@@ -126,6 +170,7 @@ const LandingPage: React.FC = () => {
               value={formData.phone}
               onChange={handleChange}
               required
+              placeholder="+1 234 567 8900"
             />
           </div>
 
