@@ -129,6 +129,42 @@ const LandingPage: React.FC = () => {
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="website">Website</label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              placeholder="https://www.yourwebsite.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="industry">Industry</label>
+            <input
+              type="text"
+              id="industry"
+              name="industry"
+              value={formData.industry}
+              onChange={handleChange}
+              placeholder="e.g., Finance, Trading, Technology"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="location">Location</label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g., New York, USA"
+            />
+          </div>
+
           <button 
             type="submit" 
             className="submit-button"
