@@ -147,30 +147,31 @@ const LandingPage: React.FC = () => {
       <div className="lead-form">
         <h2>Get Started Today</h2>
         <form onSubmit={handleSubmit} className="form-container">
-          <div className="form-group">
-            <label htmlFor="firstName">First Name</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-              placeholder="Enter your first name"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-              placeholder="Enter your last name"
-            />
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                placeholder="Enter your first name"
+              />
+            </div>
+            <div className="form-group flex-1">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                placeholder="Enter your last name"
+              />
+            </div>
           </div>
           
           <div className="form-group">

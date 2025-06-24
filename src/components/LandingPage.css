@@ -49,6 +49,17 @@
   gap: 0.5rem;
 }
 
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 200px;
+}
+
 .form-group label {
   font-weight: 500;
   color: white;
