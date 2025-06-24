@@ -20,21 +20,43 @@
   font-weight: 700;
 }
 
+/* Country select styles */
+.country-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.country-select option {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+}
+
 .hero-section p {
   font-size: 1.2rem;
   opacity: 0.9;
 }
 
 .lead-form {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 15px;
   padding: 2rem;
-  margin: 2rem auto;
-  max-width: 800px;
-  text-align: center;
-  width: 90%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin-top: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 2rem auto 0;
+  width: 100%;
 }
 
 .form-container {

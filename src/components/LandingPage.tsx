@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import './LandingPage.css';
+import './PhoneInputStyles.css';
 
 interface LeadFormData {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
+  company: string;
   website: string;
   industry: string;
-  location: string;
-}
+  address: string;
+  postalCode: string;
+  city: string;
+  country: string;
+
+} // No need for countryCode in state as PhoneInput handles it internally
 
 interface FormState {
   isSubmitting: boolean;
@@ -23,9 +31,13 @@ const LandingPage: React.FC = () => {
     lastName: '',
     email: '',
     phone: '',
+    company: '',
     website: '',
     industry: '',
-    location: ''
+    address: '',
+    postalCode: '',
+    city: '',
+    country: '',
   });
   const [formState, setFormState] = useState<FormState>({
     isSubmitting: false,
@@ -69,8 +81,8 @@ const LandingPage: React.FC = () => {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
       return false;
     }
-    if (!/^\+?\d{10,15}$/.test(formData.phone.replace(/\D/g, ''))) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number (10-15 digits)' });
+    if (!/^[+]?[0-9]{10,15}$/.test(formData.phone)) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number with country code' });
       return false;
     }
 
@@ -82,6 +94,16 @@ const LandingPage: React.FC = () => {
       }
     }
 
+    // Company validation
+    if (!formData.company.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
+      return false;
+    }
+    if (formData.company.trim().length < 1) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Company name must be at least 1 character long' });
+      return false;
+    }
+
     // Industry validation
     if (formData.industry.trim()) {
       if (formData.industry.trim().length < 2) {
@@ -91,9 +113,27 @@ const LandingPage: React.FC = () => {
     }
 
     // Location validation
-    if (formData.location.trim()) {
-      if (formData.location.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Location must be at least 2 characters long' });
+    if (formData.country.trim()) {
+      if (formData.country.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Country must be at least 2 characters long' });
+        return false;
+      }
+    }
+    if (formData.city.trim()) {
+      if (formData.city.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'City must be at least 2 characters long' });
+        return false;
+      }
+    }
+    if (formData.address.trim()) {
+      if (formData.address.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Address must be at least 2 characters long' });
+        return false;
+      }
+    }
+    if (formData.postalCode.trim()) {
+      if (formData.postalCode.trim().length < 2) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Postal code must be at least 2 characters long' });
         return false;
       }
     }
@@ -122,7 +162,7 @@ const LandingPage: React.FC = () => {
       }
 
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', website: '', industry: '', location: '' });
+      setFormData({ firstName: '', lastName: '', email: '', phone: '', company: '', website: '', industry: '', address: '', postalCode: '', country: '', city: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
@@ -188,52 +228,112 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
+            <label htmlFor="company">Company Name</label>
             <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
+              type="text"
+              id="company"
+              name="company"
+              value={formData.company}
               onChange={handleChange}
-              required
-              placeholder="+1 234 567 8900"
+              placeholder="Enter your company name"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number:</label>
+            <PhoneInput
+              country={'us'}
+              value={formData.phone}
+              onChange={(phone) => setFormData({ ...formData, phone })}
+              placeholder="E.g. +1 234 567 8900"
+              enableSearch
+              searchPlaceholder="Search country..."
+              inputStyle={{
+                color: '#333',
+                fontFamily: 'Arial, sans-serif'
+              }}
+              inputProps={{
+                placeholder: 'E.g. +1 234 567 8900'
+              }}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="website">Website</label>
+            <label htmlFor="website">Website (optional)</label>
             <input
               type="url"
               id="website"
               name="website"
               value={formData.website}
               onChange={handleChange}
-              placeholder="https://www.yourwebsite.com"
+              placeholder="https://yourwebsite.com"
             />
           </div>
-
+          
           <div className="form-group">
-            <label htmlFor="industry">Industry</label>
+            <label htmlFor="industry">Industry (optional)</label>
             <input
               type="text"
               id="industry"
               name="industry"
               value={formData.industry}
               onChange={handleChange}
-              placeholder="e.g., Finance, Trading, Technology"
+              placeholder="Enter your industry"
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="location">Location</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="e.g., New York, USA"
-            />
+          
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label htmlFor="address">Address</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                placeholder="Enter your address"
+              />
+            </div>
+            <div className="form-group flex-1">
+              <label htmlFor="postalCode">Postal Code</label>
+              <input
+                type="text"
+                id="postalCode"
+                name="postalCode"
+                value={formData.postalCode}
+                onChange={handleChange}
+                required
+                placeholder="Enter your postal code"
+              />
+            </div>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label htmlFor="city">City</label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                required
+                placeholder="Enter your city"
+              />
+            </div>
+            <div className="form-group flex-1">
+              <label htmlFor="country">Country</label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                required
+                placeholder="Enter your country"
+              />
+            </div>
           </div>
 
           <button 
