@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './LandingPage.css';
 
 interface LeadFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   website: string;
@@ -18,7 +19,8 @@ interface FormState {
 
 const LandingPage: React.FC = () => {
   const [formData, setFormData] = useState<LeadFormData>({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     website: '',
@@ -32,13 +34,23 @@ const LandingPage: React.FC = () => {
   });
 
   const validateForm = (): boolean => {
-    // Name validation
-    if (!formData.name.trim()) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your name' });
+    // First Name validation
+    if (!formData.firstName.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your first name' });
       return false;
     }
-    if (formData.name.trim().length < 2) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Name must be at least 2 characters long' });
+    if (formData.firstName.trim().length < 2) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'First name must be at least 2 characters long' });
+      return false;
+    }
+
+    // Last Name validation
+    if (!formData.lastName.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your last name' });
+      return false;
+    }
+    if (formData.lastName.trim().length < 2) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Last name must be at least 2 characters long' });
       return false;
     }
 
@@ -110,7 +122,7 @@ const LandingPage: React.FC = () => {
       }
 
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
-      setFormData({ name: '', email: '', phone: '', website: '', industry: '', location: '' });
+      setFormData({ firstName: '', lastName: '', email: '', phone: '', website: '', industry: '', location: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
@@ -136,15 +148,28 @@ const LandingPage: React.FC = () => {
         <h2>Get Started Today</h2>
         <form onSubmit={handleSubmit} className="form-container">
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
               required
-              placeholder="Enter your full name"
+              placeholder="Enter your first name"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              placeholder="Enter your last name"
             />
           </div>
           
