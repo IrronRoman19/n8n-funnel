@@ -244,10 +244,15 @@ const LandingPage: React.FC = () => {
             <PhoneInput
               country={'us'}
               value={formData.phone}
-              onChange={(value) => {
-                // Ensure phone number always includes country code
+              onChange={(value, countryData: { dialCode?: string }) => {
+                // Get the country code from the selected country
+                const countryCode = countryData?.dialCode || '';
+                // Format the number with country code and plus sign
                 const fullNumber = value.startsWith('+') ? value : `+${value}`;
-                setFormData({ ...formData, phone: fullNumber });
+                setFormData({ 
+                  ...formData, 
+                  phone: fullNumber
+                });
               }}
               placeholder="E.g. +1 234 567 8900"
               enableSearch
