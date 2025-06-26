@@ -16,7 +16,10 @@ interface LeadFormData {
   postalCode: string;
   city: string;
   country: string;
-
+  interestedInCourse: boolean;
+  tradingExperience: string;
+  receiveTemplate: boolean;
+  tradingInterest: string;
 } // No need for countryCode in state as PhoneInput handles it internally
 
 interface FormState {
@@ -38,6 +41,10 @@ const LandingPage: React.FC = () => {
     postalCode: '',
     city: '',
     country: '',
+    interestedInCourse: false,
+    tradingExperience: '',
+    receiveTemplate: false,
+    tradingInterest: '',
   });
   const [formState, setFormState] = useState<FormState>({
     isSubmitting: false,
@@ -97,6 +104,18 @@ const LandingPage: React.FC = () => {
     // Company validation
     if (!formData.company.trim()) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
+      return false;
+    }
+
+    // Trading Experience validation
+    if (!formData.tradingExperience) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your trading experience level' });
+      return false;
+    }
+
+    // Trading Interest validation
+    if (!formData.tradingInterest) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your area of trading interest' });
       return false;
     }
     if (formData.company.trim().length < 1) {
@@ -162,18 +181,35 @@ const LandingPage: React.FC = () => {
       }
 
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', company: '', website: '', industry: '', address: '', postalCode: '', country: '', city: '' });
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        company: '',
+        website: '',
+        industry: '',
+        address: '',
+        postalCode: '',
+        country: '',
+        city: '',
+        interestedInCourse: false,
+        tradingExperience: '',
+        receiveTemplate: false,
+        tradingInterest: ''
+      });
     } catch (error) {
       console.error('Error submitting form:', error);
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    const newValue = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: newValue
     }));
   };
 
@@ -235,8 +271,73 @@ const LandingPage: React.FC = () => {
               name="company"
               value={formData.company}
               onChange={handleChange}
+              className="form-control"
               placeholder="Enter your company name"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="trading-interest">Area of Trading Interest</label>
+            <select
+              id="trading-interest"
+              name="tradingInterest"
+              value={formData.tradingInterest}
+              onChange={handleChange}
+              className="form-control"
+              required
+            >
+              <option value="">Select your area of interest</option>
+              <option value="forex">Forex Trading</option>
+              <option value="cryptocurrency">Cryptocurrency Trading</option>
+              <option value="stocks">Stock Trading</option>
+              <option value="options">Options Trading</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="trading-experience">Trading Experience Level</label>
+            <select
+              id="trading-experience"
+              name="tradingExperience"
+              value={formData.tradingExperience}
+              onChange={handleChange}
+              className="form-control"
+              required
+            >
+              <option value="">Select your experience level</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+              <option value="professional">Professional</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <div className="checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="interestedInCourse"
+                  checked={formData.interestedInCourse}
+                  onChange={handleChange}
+                />
+                I'm interested in learning about AI-Powered Trading Automation with n8n
+              </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <div className="checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="receiveTemplate"
+                  checked={formData.receiveTemplate}
+                  onChange={handleChange}
+                />
+                Yes, I want to receive the free n8n workflow template
+              </label>
+            </div>
           </div>
           
           <div className="form-group">
