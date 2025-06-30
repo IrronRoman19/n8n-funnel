@@ -101,6 +101,14 @@ const LandingPage: React.FC = () => {
       }
     }
 
+    // Postal Code validation
+    if (formData.postalCode.trim()) {
+      if (!/^[0-9]+$/.test(formData.postalCode)) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Postal code can only contain numbers' });
+        return false;
+      }
+    }
+
     // Company validation
     if (!formData.company.trim()) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
