@@ -401,7 +401,7 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-row">
-            <div className="form-group">
+            <div className="form-group flex-1">
               <label htmlFor="address">Address:</label>
               <input
                 type="text"
@@ -413,7 +413,7 @@ const LandingPage: React.FC = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group flex-1">
               <label htmlFor="postalCode">Postal Code:</label>
               <input
                 type="text"
