@@ -272,7 +272,7 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="company">Companys name (optional)</label>
+            <label htmlFor="company">Company name (optional)</label>
             <input
               type="text"
               id="company"
