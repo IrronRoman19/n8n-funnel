@@ -272,7 +272,6 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="company">Company Name (optional)</label>
             <input
               type="text"
               id="company"
@@ -401,28 +400,32 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-row">
-            <div className="form-group flex-1">
-              <label htmlFor="address">Address</label>
+            <div className="form-group">
+              <label htmlFor="address">Address:</label>
               <input
                 type="text"
                 id="address"
-                name="address"
                 value={formData.address}
-                onChange={handleChange}
-                required
-                placeholder="Enter your address"
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Street address"
+                className="form-control"
               />
             </div>
-            <div className="form-group flex-1">
-              <label htmlFor="postalCode">Postal Code</label>
+
+            <div className="form-group">
+              <label htmlFor="postalCode">Postal Code:</label>
               <input
                 type="text"
                 id="postalCode"
                 name="postalCode"
                 value={formData.postalCode}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, ''); // Remove non-digit characters
+                  setFormData({ ...formData, postalCode: value });
+                }}
                 required
-                placeholder="Enter your postal code"
+                placeholder="Enter postal code (numbers only)"
+                className="form-control"
               />
             </div>
           </div>
