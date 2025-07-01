@@ -107,8 +107,10 @@ const LandingPage: React.FC = () => {
     // Website validation
     const website = formData.website.trim();
     if (website) {
-      if (!/^https?:\/\/\w+\.\w+$/.test(website)) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid website URL starting with http:// or https://' });
+      // Allow both with and without http/https
+      const url = website.startsWith('http') ? website : `https://${website}`;
+      if (!/^https?:\/\/([\w-]+\.)+[\w-]+(\/[^\s]*)?$/.test(url)) {
+        setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid website URL (e.g., example.com or https://example.com)' });
         return false;
       }
     }
@@ -203,7 +205,7 @@ const LandingPage: React.FC = () => {
     if (!validateForm()) return;
 
     // Submit form data
-    fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
+    fetch('https://api.n8n.io/webhook', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
