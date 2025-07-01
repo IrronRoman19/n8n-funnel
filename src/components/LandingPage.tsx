@@ -47,7 +47,7 @@ const LandingPage: React.FC = () => {
     address: '',
     postalCode: '',
     city: '',
-    country: countries[0],
+    country: null as unknown as CountryOption,
     interestedInCourse: false,
     tradingExperience: '',
     receiveTemplate: false,
@@ -97,6 +97,12 @@ const LandingPage: React.FC = () => {
     const phone = formData.phone.trim();
     if (!phone) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
+      return false;
+    }
+
+    // Country validation
+    if (!formData.country) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
       return false;
     }
     if (!/^[+]?[0-9]{10,15}$/.test(phone)) {
@@ -236,7 +242,7 @@ const LandingPage: React.FC = () => {
         address: '',
         postalCode: '',
         city: '',
-        country: countries[0],
+        country: null as unknown as CountryOption,
         interestedInCourse: false,
         tradingExperience: '',
         receiveTemplate: false,
