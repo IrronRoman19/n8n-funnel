@@ -205,7 +205,7 @@ const LandingPage: React.FC = () => {
     if (!validateForm()) return;
 
     // Submit form data
-    fetch('https://api.n8n.io/webhook', {
+    fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
