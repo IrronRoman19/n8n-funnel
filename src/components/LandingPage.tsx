@@ -552,6 +552,9 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </div>
+      <div className="footer">
+        <p>© {new Date().getFullYear()} All rights reserved.</p>
+      </div>
     </div>
   );
 };

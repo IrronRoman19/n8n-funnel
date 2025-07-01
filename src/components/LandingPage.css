@@ -317,3 +317,10 @@
 .feature-card p {
   color: rgba(255, 255, 255, 0.8);
 }
+
+.footer {
+  color: #ffffff;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
