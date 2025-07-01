@@ -203,14 +203,15 @@ const LandingPage: React.FC = () => {
     if (!validateForm()) return;
 
     // Submit form data
-    fetch('https://api.n8n.io/webhook', {
+    fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         ...formData,
-        country: formData.country.code
+        country: formData.country.code,
+        countryName: formData.country.name
       })
     })
     .then(response => {
@@ -220,6 +221,7 @@ const LandingPage: React.FC = () => {
       return response.json();
     })
     .then(data => {
+      console.log('Form submitted successfully:', data);
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
       setFormData({
         firstName: '',
@@ -240,11 +242,11 @@ const LandingPage: React.FC = () => {
       });
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error('Form submission error:', error);
       setFormState({
         isSubmitting: false,
         isSuccess: false,
-        error: 'An error occurred while submitting the form. Please try again.'
+        error: error.message || 'An error occurred while submitting the form. Please try again.'
       });
     });
   };
