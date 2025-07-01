@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
+import Select from 'react-select';
 import 'react-phone-input-2/lib/style.css';
 import './LandingPage.css';
 import './PhoneInputStyles.css';
+import { countries } from '../utils/countries';
+
+interface CountryOption {
+  code: string;
+  name: string;
+}
 
 interface LeadFormData {
   firstName: string;
@@ -15,7 +22,7 @@ interface LeadFormData {
   address: string;
   postalCode: string;
   city: string;
-  country: string;
+  country: CountryOption;
   interestedInCourse: boolean;
   tradingExperience: string;
   receiveTemplate: boolean;
@@ -40,7 +47,7 @@ const LandingPage: React.FC = () => {
     address: '',
     postalCode: '',
     city: '',
-    country: '',
+    country: countries[0],
     interestedInCourse: false,
     tradingExperience: '',
     receiveTemplate: false,
@@ -54,64 +61,81 @@ const LandingPage: React.FC = () => {
 
   const validateForm = (): boolean => {
     // First Name validation
-    if (!formData.firstName.trim()) {
+    const firstName = formData.firstName.trim();
+    if (!firstName) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your first name' });
       return false;
     }
-    if (formData.firstName.trim().length < 2) {
+    if (firstName.length < 2) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'First name must be at least 2 characters long' });
       return false;
     }
 
     // Last Name validation
-    if (!formData.lastName.trim()) {
+    const lastName = formData.lastName.trim();
+    if (!lastName) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your last name' });
       return false;
     }
-    if (formData.lastName.trim().length < 2) {
+    if (lastName.length < 2) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Last name must be at least 2 characters long' });
       return false;
     }
 
     // Email validation
-    if (!formData.email.trim()) {
+    const email = formData.email.trim();
+    if (!email) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your email address' });
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid email address' });
       return false;
     }
 
     // Phone validation
-    if (!formData.phone.trim()) {
+    const phone = formData.phone.trim();
+    if (!phone) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
       return false;
     }
-    if (!/^[+]?[0-9]{10,15}$/.test(formData.phone)) {
+    if (!/^[+]?[0-9]{10,15}$/.test(phone)) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number with country code' });
       return false;
     }
 
     // Website validation
-    if (formData.website.trim()) {
-      if (!/^https?:\/\/[\w.-]+(?:\/[\w.-]*)*$/.test(formData.website)) {
+    const website = formData.website.trim();
+    if (website) {
+      if (!/^https?:\/\/\w+\.\w+$/.test(website)) {
         setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid website URL starting with http:// or https://' });
         return false;
       }
     }
 
+    // Company validation
+    const company = formData.company.trim();
+    if (!company) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
+      return false;
+    }
+
     // Postal Code validation
-    if (formData.postalCode.trim()) {
-      if (!/^[0-9]+$/.test(formData.postalCode)) {
+    const postalCode = formData.postalCode.trim();
+    if (postalCode) {
+      if (!/^[0-9]+$/.test(postalCode)) {
         setFormState({ isSubmitting: false, isSuccess: false, error: 'Postal code can only contain numbers' });
         return false;
       }
     }
 
-    // Company validation
-    if (!formData.company.trim()) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
+    // Country validation
+    if (!formData.country) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
+      return false;
+    }
+    if (!formData.country.code) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select a valid country' });
       return false;
     }
 
@@ -140,11 +164,13 @@ const LandingPage: React.FC = () => {
     }
 
     // Location validation
-    if (formData.country.trim()) {
-      if (formData.country.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Country must be at least 2 characters long' });
-        return false;
-      }
+    if (!formData.country || !formData.country.name) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
+      return false;
+    }
+    if (formData.country.name.length < 2) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Country name must be at least 2 characters long' });
+      return false;
     }
     if (formData.city.trim()) {
       if (formData.city.trim().length < 2) {
@@ -165,29 +191,35 @@ const LandingPage: React.FC = () => {
       }
     }
 
+
+
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-
     setFormState({ isSubmitting: true, isSuccess: false, error: null });
 
-    try {
-      const response = await fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+    if (!validateForm()) return;
 
+    // Submit form data
+    fetch('https://api.n8n.io/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...formData,
+        country: formData.country.code
+      })
+    })
+    .then(response => {
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error('Network response was not ok');
       }
-
+      return response.json();
+    })
+    .then(data => {
       setFormState({ isSubmitting: false, isSuccess: true, error: null });
       setFormData({
         firstName: '',
@@ -199,25 +231,36 @@ const LandingPage: React.FC = () => {
         industry: '',
         address: '',
         postalCode: '',
-        country: '',
         city: '',
+        country: countries[0],
         interestedInCourse: false,
         tradingExperience: '',
         receiveTemplate: false,
         tradingInterest: ''
       });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Failed to submit form. Please try again.' });
-    }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      setFormState({
+        isSubmitting: false,
+        isSuccess: false,
+        error: 'An error occurred while submitting the form. Please try again.'
+      });
+    });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    const newValue = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     setFormData(prev => ({
       ...prev,
-      [name]: newValue
+      [name]: value
+    }));
+  };
+
+  const handleCountryChange = (selectedOption: CountryOption | null) => {
+    setFormData(prev => ({
+      ...prev,
+      country: selectedOption || countries[0]
     }));
   };
 
@@ -445,15 +488,17 @@ const LandingPage: React.FC = () => {
               />
             </div>
             <div className="form-group flex-1">
-              <label htmlFor="country">Country</label>
-              <input
-                type="text"
+              <label htmlFor="country">Country*</label>
+              <Select
                 id="country"
                 name="country"
                 value={formData.country}
-                onChange={handleChange}
+                onChange={handleCountryChange}
+                options={countries}
+                getOptionLabel={(option: CountryOption) => option.name}
+                getOptionValue={(option: CountryOption) => option.code}
                 required
-                placeholder="Enter your country"
+                placeholder="Select your country"
               />
             </div>
           </div>
