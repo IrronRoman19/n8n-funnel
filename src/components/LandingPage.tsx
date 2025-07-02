@@ -53,7 +53,6 @@ interface LeadFormData {
   email: string;
   phone: string;
   company: string;
-  website: string;
   industry: string;
   address: string;
   postalCode: string;
@@ -78,7 +77,6 @@ const LandingPage: React.FC = () => {
     email: '',
     phone: '',
     company: '',
-    website: '',
     industry: '',
     address: '',
     postalCode: '',
@@ -144,17 +142,6 @@ const LandingPage: React.FC = () => {
     if (!/^[+]?[0-9]{10,15}$/.test(phone)) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number with country code' });
       return false;
-    }
-
-    // Website validation
-    const website = formData.website.trim();
-    if (website) {
-      // Allow both with and without http/https
-      const url = website.startsWith('http') ? website : `https://${website}`;
-      if (!/^https?:\/\/([\w-]+\.)+[\w-]+(\/[^\s]*)?$/.test(url)) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid website URL (e.g., example.com or https://example.com)' });
-        return false;
-      }
     }
 
     // Company validation (optional)
@@ -264,7 +251,6 @@ const LandingPage: React.FC = () => {
         email: '',
         phone: '',
         company: '',
-        website: '',
         industry: '',
         address: '',
         postalCode: '',
@@ -456,18 +442,7 @@ const LandingPage: React.FC = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="website">Website (optional)</label>
-            <input
-              type="url"
-              id="website"
-              name="website"
-              value={formData.website}
-              onChange={handleChange}
-              placeholder="https://yourwebsite.com"
-            />
-          </div>
-          
+
           <div className="form-group">
             <label htmlFor="industry">Industry</label>
             <Select
