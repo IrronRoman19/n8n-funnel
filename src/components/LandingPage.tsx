@@ -6,6 +6,42 @@ import './LandingPage.css';
 import './PhoneInputStyles.css';
 import { countries } from '../utils/countries';
 
+// Define option type
+interface Option {
+  value: string;
+  label: string;
+}
+
+// Options arrays
+const tradingInterestOptions = [
+  { value: 'stocks', label: 'Stocks' },
+  { value: 'cryptocurrency', label: 'Cryptocurrency' },
+  { value: 'forex', label: 'Forex' },
+  { value: 'options', label: 'Options' },
+  { value: 'futures', label: 'Futures' },
+  { value: 'other', label: 'Other' }
+];
+
+const tradingExperienceOptions = [
+  { value: 'beginner', label: 'Beginner' },
+  { value: 'intermediate', label: 'Intermediate' },
+  { value: 'advanced', label: 'Advanced' },
+  { value: 'professional', label: 'Professional' }
+];
+
+const industryOptions = [
+  { value: '', label: 'Select industry' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'technology', label: 'Technology' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'manufacturing', label: 'Manufacturing' },
+  { value: 'retail', label: 'Retail' },
+  { value: 'education', label: 'Education' },
+  { value: 'government', label: 'Government' },
+  { value: 'nonprofit', label: 'Nonprofit' },
+  { value: 'other', label: 'Other' }
+];
+
 interface CountryOption {
   code: string;
   name: string;
@@ -121,12 +157,8 @@ const LandingPage: React.FC = () => {
       }
     }
 
-    // Company validation
+    // Company validation (optional)
     const company = formData.company.trim();
-    if (!company) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your company name' });
-      return false;
-    }
 
     // Postal Code validation
     const postalCode = formData.postalCode.trim();
@@ -158,17 +190,12 @@ const LandingPage: React.FC = () => {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your area of trading interest' });
       return false;
     }
-    if (formData.company.trim().length < 1) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Company name must be at least 1 character long' });
-      return false;
-    }
+    // Company validation (optional - no length check)
 
     // Industry validation
-    if (formData.industry.trim()) {
-      if (formData.industry.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Industry must be at least 2 characters long' });
-        return false;
-      }
+    if (!formData.industry) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your industry' });
+      return false;
     }
 
     // Location validation
@@ -339,38 +366,38 @@ const LandingPage: React.FC = () => {
 
           <div className="form-group">
             <label htmlFor="trading-interest">Area of Trading Interest</label>
-            <select
+            <Select<Option>
               id="trading-interest"
               name="tradingInterest"
-              value={formData.tradingInterest}
-              onChange={handleChange}
-              className="form-control"
+              value={tradingInterestOptions.find((option: Option) => option.value === formData.tradingInterest)}
+              onChange={(option: Option | null) => setFormData(prev => ({
+                ...prev,
+                tradingInterest: option?.value || ''
+              }))}
+              options={tradingInterestOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
               required
-            >
-              <option value="">Select your area of interest</option>
-              <option value="forex">Forex Trading</option>
-              <option value="cryptocurrency">Cryptocurrency Trading</option>
-              <option value="stocks">Stock Trading</option>
-              <option value="options">Options Trading</option>
-            </select>
+              placeholder="Select your area of interest"
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="trading-experience">Trading Experience Level</label>
-            <select
+            <Select<Option>
               id="trading-experience"
               name="tradingExperience"
-              value={formData.tradingExperience}
-              onChange={handleChange}
-              className="form-control"
+              value={tradingExperienceOptions.find((option: Option) => option.value === formData.tradingExperience)}
+              onChange={(option: Option | null) => setFormData(prev => ({
+                ...prev,
+                tradingExperience: option?.value || ''
+              }))}
+              options={tradingExperienceOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
               required
-            >
-              <option value="">Select your experience level</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-              <option value="professional">Professional</option>
-            </select>
+              placeholder="Select your experience level"
+            />
           </div>
 
           <div className="form-group">
@@ -442,14 +469,18 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="industry">Industry (optional)</label>
-            <input
-              type="text"
+            <label htmlFor="industry">Industry</label>
+            <Select
               id="industry"
               name="industry"
-              value={formData.industry}
-              onChange={handleChange}
-              placeholder="Enter your industry"
+              value={industryOptions.find((option) => option.value === formData.industry)}
+              onChange={(selectedOption) => {
+                handleChange({ target: { name: 'industry', value: selectedOption?.value || '' } } as React.ChangeEvent<HTMLSelectElement>);
+              }}
+              options={industryOptions}
+              placeholder="Select your industry"
+              className="react-select-container"
+              classNamePrefix="react-select"
             />
           </div>
           
