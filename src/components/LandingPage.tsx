@@ -6,6 +6,8 @@ import './LandingPage.css';
 import './PhoneInputStyles.css';
 import { countries } from '../utils/countries';
 
+const n8nurl = process.env.REACT_APP_N8N_URL;
+
 // Define option type
 interface Option {
   value: string;
@@ -224,8 +226,13 @@ const LandingPage: React.FC = () => {
 
     if (!validateForm()) return;
 
+    // Determine the appropriate webhook URL based on environment
+    const webhookUrl = process.env.NODE_ENV === 'production' 
+      ? `${n8nurl}/webhook/course-lead-webhook`
+      : `${n8nurl}/webhook-test/course-lead-webhook`;
+
     // Submit form data
-    fetch('http://localhost:5678/webhook-test/course-lead-webhook', {
+    fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -299,7 +306,7 @@ const LandingPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="form-container">
           <div className="form-row">
             <div className="form-group flex-1">
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="firstName">First Name:</label>
               <input
                 type="text"
                 id="firstName"
@@ -311,7 +318,7 @@ const LandingPage: React.FC = () => {
               />
             </div>
             <div className="form-group flex-1">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">Last Name:</label>
               <input
                 type="text"
                 id="lastName"
@@ -325,7 +332,7 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">Email Address:</label>
             <input
               type="email"
               id="email"
@@ -338,7 +345,7 @@ const LandingPage: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="company">Company name (optional)</label>
+            <label htmlFor="company">Company name (optional):</label>
             <input
               type="text"
               id="company"
@@ -351,7 +358,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="trading-interest">Area of Trading Interest</label>
+            <label htmlFor="trading-interest">Area of Trading Interest:</label>
             <Select<Option>
               id="trading-interest"
               name="tradingInterest"
@@ -369,7 +376,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="trading-experience">Trading Experience Level</label>
+            <label htmlFor="trading-experience">Trading Experience Level:</label>
             <Select<Option>
               id="trading-experience"
               name="tradingExperience"
@@ -444,7 +451,7 @@ const LandingPage: React.FC = () => {
 
 
           <div className="form-group">
-            <label htmlFor="industry">Industry</label>
+            <label htmlFor="industry">Industry:</label>
             <Select
               id="industry"
               name="industry"
@@ -492,7 +499,7 @@ const LandingPage: React.FC = () => {
           
           <div className="form-row">
             <div className="form-group flex-1">
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">City:</label>
               <input
                 type="text"
                 id="city"
@@ -504,7 +511,7 @@ const LandingPage: React.FC = () => {
               />
             </div>
             <div className="form-group flex-1">
-              <label htmlFor="country">Country*</label>
+              <label htmlFor="country">Country:</label>
               <Select
                 id="country"
                 name="country"
