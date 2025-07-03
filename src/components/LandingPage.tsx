@@ -280,7 +280,11 @@ const LandingPage: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, type } = e.target;
+    const value = type === 'checkbox' 
+      ? (e.target as HTMLInputElement).checked 
+      : e.target.value;
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
