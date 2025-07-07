@@ -54,17 +54,12 @@ interface LeadFormData {
   lastName: string;
   email: string;
   phone: string;
-  company: string;
-  industry: string;
-  address: string;
-  postalCode: string;
-  city: string;
   country: CountryOption;
   interestedInCourse: boolean;
   tradingExperience: string;
   receiveTemplate: boolean;
   tradingInterest: string;
-} // No need for countryCode in state as PhoneInput handles it internally
+}
 
 interface FormState {
   isSubmitting: boolean;
@@ -78,11 +73,6 @@ const LandingPage: React.FC = () => {
     lastName: '',
     email: '',
     phone: '',
-    company: '',
-    industry: '',
-    address: '',
-    postalCode: '',
-    city: '',
     country: null as unknown as CountryOption,
     interestedInCourse: false,
     tradingExperience: '',
@@ -135,36 +125,14 @@ const LandingPage: React.FC = () => {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your phone number' });
       return false;
     }
-
-    // Country validation
-    if (!formData.country) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
-      return false;
-    }
     if (!/^[+]?[0-9]{10,15}$/.test(phone)) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter a valid phone number with country code' });
       return false;
     }
 
-    // Company validation (optional)
-    const company = formData.company.trim();
-
-    // Postal Code validation
-    const postalCode = formData.postalCode.trim();
-    if (postalCode) {
-      if (!/^[0-9]+$/.test(postalCode)) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Postal code can only contain numbers' });
-        return false;
-      }
-    }
-
     // Country validation
-    if (!formData.country) {
+    if (!formData.country || !formData.country.code) {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
-      return false;
-    }
-    if (!formData.country.code) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select a valid country' });
       return false;
     }
 
@@ -179,41 +147,7 @@ const LandingPage: React.FC = () => {
       setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your area of trading interest' });
       return false;
     }
-    // Company validation (optional - no length check)
 
-    // Industry validation
-    if (!formData.industry) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your industry' });
-      return false;
-    }
-
-    // Location validation
-    if (!formData.country || !formData.country.name) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your country' });
-      return false;
-    }
-    if (formData.country.name.length < 2) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Country name must be at least 2 characters long' });
-      return false;
-    }
-    if (formData.city.trim()) {
-      if (formData.city.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'City must be at least 2 characters long' });
-        return false;
-      }
-    }
-    if (formData.address.trim()) {
-      if (formData.address.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Address must be at least 2 characters long' });
-        return false;
-      }
-    }
-    if (formData.postalCode.trim()) {
-      if (formData.postalCode.trim().length < 2) {
-        setFormState({ isSubmitting: false, isSuccess: false, error: 'Postal code must be at least 2 characters long' });
-        return false;
-      }
-    }
 
 
 
@@ -227,9 +161,21 @@ const LandingPage: React.FC = () => {
     if (!validateForm()) return;
 
     // Determine the appropriate webhook URL based on environment
-    const webhookUrl = process.env.NODE_ENV === 'production' 
-      ? `${n8nurl}/webhook/course-lead-webhook`
-      : `${n8nurl}/webhook-test/course-lead-webhook`;
+    if (!n8nurl) {
+      setFormState({ 
+        isSubmitting: false, 
+        isSuccess: false, 
+        error: 'Server configuration error. Please contact support.' 
+      });
+      return;
+    }
+    
+    // Ensure n8nurl has proper protocol and no trailing slash
+    const baseUrl = n8nurl.replace(/\/+$/, '');
+    const webhookPath = process.env.NODE_ENV === 'production' 
+      ? '/webhook/course-lead-webhook'
+      : '/webhook-test/course-lead-webhook';
+    const webhookUrl = `${baseUrl}${webhookPath}`;
 
     // Submit form data
     fetch(webhookUrl, {
@@ -243,9 +189,22 @@ const LandingPage: React.FC = () => {
         countryName: formData.country.name
       })
     })
-    .then(response => {
+    .then(async response => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        // Try to get more detailed error information
+        let errorMessage = 'Network response was not ok';
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (response.status === 404) {
+            errorMessage = 'The form submission service is currently unavailable. Please try again later or contact support.';
+          }
+        } catch (e) {
+          // If we can't parse the error response, use the status text or default message
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
       return response.json();
     })
@@ -257,11 +216,6 @@ const LandingPage: React.FC = () => {
         lastName: '',
         email: '',
         phone: '',
-        company: '',
-        industry: '',
-        address: '',
-        postalCode: '',
-        city: '',
         country: null as unknown as CountryOption,
         interestedInCourse: false,
         tradingExperience: '',
@@ -271,10 +225,23 @@ const LandingPage: React.FC = () => {
     })
     .catch(error => {
       console.error('Form submission error:', error);
+      
+      let userFriendlyError = 'An error occurred while submitting the form. Please try again.';
+      
+      if (error.message.includes('Failed to fetch')) {
+        userFriendlyError = 'Unable to connect to the form submission service. Please check your internet connection and try again.';
+      } else if (error.message.includes('NetworkError')) {
+        userFriendlyError = 'Network error. Please check your internet connection and try again.';
+      } else if (error.message) {
+        userFriendlyError = error.message;
+      }
+      
+      console.error('Detailed error:', error);
+      
       setFormState({
         isSubmitting: false,
         isSuccess: false,
-        error: error.message || 'An error occurred while submitting the form. Please try again.'
+        error: userFriendlyError
       });
     });
   };
@@ -348,20 +315,7 @@ const LandingPage: React.FC = () => {
             />
           </div>
           
-          <div className="form-group">
-            <label htmlFor="company">Company name (optional):</label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              className="form-control"
-              placeholder="Enter your company name"
-            />
-          </div>
-
-          <div className="form-group">
+<div className="form-group">
             <label htmlFor="trading-interest">Area of Trading Interest:</label>
             <Select<Option>
               id="trading-interest"
@@ -455,79 +409,18 @@ const LandingPage: React.FC = () => {
 
 
           <div className="form-group">
-            <label htmlFor="industry">Industry:</label>
+            <label htmlFor="country">Country:</label>
             <Select
-              id="industry"
-              name="industry"
-              value={industryOptions.find((option) => option.value === formData.industry)}
-              onChange={(selectedOption) => {
-                handleChange({ target: { name: 'industry', value: selectedOption?.value || '' } } as React.ChangeEvent<HTMLSelectElement>);
-              }}
-              options={industryOptions}
-              placeholder="Select your industry"
-              className="react-select-container"
-              classNamePrefix="react-select"
+              id="country"
+              name="country"
+              value={formData.country}
+              onChange={handleCountryChange}
+              options={countries}
+              getOptionLabel={(option: CountryOption) => option.name}
+              getOptionValue={(option: CountryOption) => option.code}
+              required
+              placeholder="Select your country"
             />
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group flex-1">
-              <label htmlFor="address">Address:</label>
-              <input
-                type="text"
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Street address"
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group flex-1">
-              <label htmlFor="postalCode">Postal Code:</label>
-              <input
-                type="text"
-                id="postalCode"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, ''); // Remove non-digit characters
-                  setFormData({ ...formData, postalCode: value });
-                }}
-                required
-                placeholder="Enter postal code (numbers only)"
-                className="form-control"
-              />
-            </div>
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group flex-1">
-              <label htmlFor="city">City:</label>
-              <input
-                type="text"
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                required
-                placeholder="Enter your city"
-              />
-            </div>
-            <div className="form-group flex-1">
-              <label htmlFor="country">Country:</label>
-              <Select
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleCountryChange}
-                options={countries}
-                getOptionLabel={(option: CountryOption) => option.name}
-                getOptionValue={(option: CountryOption) => option.code}
-                required
-                placeholder="Select your country"
-              />
-            </div>
           </div>
 
           <button 
