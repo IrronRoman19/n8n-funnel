@@ -15,33 +15,35 @@ interface Option {
 }
 
 // Options arrays
-const tradingInterestOptions = [
-  { value: 'stocks', label: 'Stocks' },
-  { value: 'cryptocurrency', label: 'Cryptocurrency' },
-  { value: 'forex', label: 'Forex' },
-  { value: 'options', label: 'Options' },
-  { value: 'futures', label: 'Futures' },
-  { value: 'other', label: 'Other' }
+
+const topicOfInterestOptions = [
+  { value: 'Python', label: 'Python' },
+  { value: 'Finance', label: 'Finance' },
+  { value: 'Data Analysis', label: 'Data Analysis' },
+  { value: 'Pandas', label: 'Pandas' },
+  { value: 'AI', label: 'AI' }
 ];
 
-const tradingExperienceOptions = [
+const learningGoalOptions = [
+  { value: 'Get a job', label: 'Get a job' },
+  { value: 'Improve skills', label: 'Improve skills' },
+  { value: 'Switch careers', label: 'Switch careers' },
+  { value: 'Academic growth', label: 'Academic growth' },
+  { value: 'Personal interest', label: 'Personal interest' }
+];
+
+const weeklyTimeCommitmentOptions = [
+  { value: '0–2 hrs', label: '0–2 hrs' },
+  { value: '2–5 hrs', label: '2–5 hrs' },
+  { value: '5–10 hrs', label: '5–10 hrs' },
+  { value: '10+ hrs', label: '10+ hrs' }
+];
+
+const levelOptions = [
   { value: 'beginner', label: 'Beginner' },
   { value: 'intermediate', label: 'Intermediate' },
   { value: 'advanced', label: 'Advanced' },
-  { value: 'professional', label: 'Professional' }
-];
-
-const industryOptions = [
-  { value: '', label: 'Select industry' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'technology', label: 'Technology' },
-  { value: 'healthcare', label: 'Healthcare' },
-  { value: 'manufacturing', label: 'Manufacturing' },
-  { value: 'retail', label: 'Retail' },
-  { value: 'education', label: 'Education' },
-  { value: 'government', label: 'Government' },
-  { value: 'nonprofit', label: 'Nonprofit' },
-  { value: 'other', label: 'Other' }
+  { value: 'expert', label: 'Expert' }
 ];
 
 interface CountryOption {
@@ -55,10 +57,12 @@ interface LeadFormData {
   email: string;
   phone: string;
   country: CountryOption;
-  interestedInCourse: boolean;
-  tradingExperience: string;
-  receiveTemplate: boolean;
-  tradingInterest: string;
+  codingExperience: string;
+  language: string;
+  level: string;
+  topicOfInterest: string[];
+  learningGoal: string;
+  weeklyTimeCommitment: string;
 }
 
 interface FormState {
@@ -73,11 +77,13 @@ const LandingPage: React.FC = () => {
     lastName: '',
     email: '',
     phone: '',
-    country: null as unknown as CountryOption,
-    interestedInCourse: false,
-    tradingExperience: '',
-    receiveTemplate: false,
-    tradingInterest: '',
+    country: { code: '', name: '' },
+    codingExperience: '',
+    language: '',
+    level: '',
+    topicOfInterest: [],
+    learningGoal: '',
+    weeklyTimeCommitment: ''
   });
   const [formState, setFormState] = useState<FormState>({
     isSubmitting: false,
@@ -136,15 +142,39 @@ const LandingPage: React.FC = () => {
       return false;
     }
 
-    // Trading Experience validation
-    if (!formData.tradingExperience) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your trading experience level' });
+    // Coding Experience validation
+    if (!formData.codingExperience.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your coding experience' });
       return false;
     }
 
-    // Trading Interest validation
-    if (!formData.tradingInterest) {
-      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your area of trading interest' });
+    // Language validation
+    if (!formData.language.trim()) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please enter your preferred programming language' });
+      return false;
+    }
+
+    // Level validation
+    if (!formData.level) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your skill level' });
+      return false;
+    }
+
+    // Topic of Interest validation
+    if (formData.topicOfInterest.length === 0) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select at least one topic of interest' });
+      return false;
+    }
+
+    // Learning Goal validation
+    if (!formData.learningGoal) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your learning goal' });
+      return false;
+    }
+
+    // Weekly Time Commitment validation
+    if (!formData.weeklyTimeCommitment) {
+      setFormState({ isSubmitting: false, isSuccess: false, error: 'Please select your weekly time commitment' });
       return false;
     }
 
@@ -216,11 +246,13 @@ const LandingPage: React.FC = () => {
         lastName: '',
         email: '',
         phone: '',
-        country: null as unknown as CountryOption,
-        interestedInCourse: false,
-        tradingExperience: '',
-        receiveTemplate: false,
-        tradingInterest: ''
+        country: { code: '', name: '' },
+        codingExperience: '',
+        language: '',
+        level: '',
+        topicOfInterest: [],
+        learningGoal: '',
+        weeklyTimeCommitment: ''
       });
     })
     .catch(error => {
@@ -247,21 +279,33 @@ const LandingPage: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, type } = e.target;
-    const value = type === 'checkbox' 
-      ? (e.target as HTMLInputElement).checked 
-      : e.target.value;
-    
+    const { name, value, type } = e.target as HTMLInputElement;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  const handleMultiSelectChange = (selectedOptions: readonly Option[] | null, actionMeta: { name?: string }) => {
+    if (!actionMeta.name) return;
+    setFormData(prev => ({
+      ...prev,
+      [actionMeta.name as string]: selectedOptions ? selectedOptions.map(option => option.value) : []
+    }));
+  };
+
+  const handleSelectChange = (selectedOption: Option | null, actionMeta: { name?: string }) => {
+    if (!actionMeta.name) return;
+    setFormData(prev => ({
+      ...prev,
+      [actionMeta.name as string]: selectedOption ? selectedOption.value : ''
     }));
   };
 
   const handleCountryChange = (selectedOption: CountryOption | null) => {
     setFormData(prev => ({
       ...prev,
-      country: selectedOption || countries[0]
+      country: selectedOption || { code: '', name: '' }
     }));
   };
 
@@ -314,70 +358,7 @@ const LandingPage: React.FC = () => {
               placeholder="your.email@example.com"
             />
           </div>
-          
-<div className="form-group">
-            <label htmlFor="trading-interest">Area of Trading Interest:</label>
-            <Select<Option>
-              id="trading-interest"
-              name="tradingInterest"
-              value={tradingInterestOptions.find((option: Option) => option.value === formData.tradingInterest)}
-              onChange={(option: Option | null) => setFormData(prev => ({
-                ...prev,
-                tradingInterest: option?.value || ''
-              }))}
-              options={tradingInterestOptions}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              required
-              placeholder="Select your area of interest"
-            />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="trading-experience">Trading Experience Level:</label>
-            <Select<Option>
-              id="trading-experience"
-              name="tradingExperience"
-              value={tradingExperienceOptions.find((option: Option) => option.value === formData.tradingExperience)}
-              onChange={(option: Option | null) => setFormData(prev => ({
-                ...prev,
-                tradingExperience: option?.value || ''
-              }))}
-              options={tradingExperienceOptions}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              required
-              placeholder="Select your experience level"
-            />
-          </div>
-
-          <div className="form-group">
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="interestedInCourse"
-                  checked={formData.interestedInCourse}
-                  onChange={handleChange}
-                />
-                I'm interested in learning about AI-Powered Trading Automation with n8n
-              </label>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="receiveTemplate"
-                  checked={formData.receiveTemplate}
-                  onChange={handleChange}
-                />
-                Yes, I want to receive the free n8n workflow template
-              </label>
-            </div>
-          </div>
           
           <div className="form-group">
             <label htmlFor="phone">Phone Number:</label>
@@ -413,13 +394,111 @@ const LandingPage: React.FC = () => {
             <Select
               id="country"
               name="country"
-              value={formData.country}
+              value={formData.country?.code ? formData.country : null}
               onChange={handleCountryChange}
               options={countries}
               getOptionLabel={(option: CountryOption) => option.name}
               getOptionValue={(option: CountryOption) => option.code}
               required
               placeholder="Select your country"
+              isClearable={true}
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="codingExperience">Coding Experience:</label>
+            <input
+              type="text"
+              id="codingExperience"
+              name="codingExperience"
+              value={formData.codingExperience}
+              onChange={handleChange}
+              required
+              placeholder="Describe your coding experience"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="language">Preferred Programming Language:</label>
+            <input
+              type="text"
+              id="language"
+              name="language"
+              value={formData.language}
+              onChange={handleChange}
+              required
+              placeholder="E.g., Python, JavaScript, etc."
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="level">Skill Level:</label>
+            <Select
+              id="level"
+              value={levelOptions.find(option => option.value === formData.level) || null}
+              onChange={(value, actionMeta) => {
+                handleSelectChange(value, { name: 'level' });
+              }}
+              options={levelOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              required
+              placeholder="Select your skill level"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Topics of Interest:</label>
+            <Select
+              isMulti
+              name="topicOfInterest"
+              options={topicOfInterestOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              onChange={(value, actionMeta) => {
+                handleMultiSelectChange(value, { name: 'topicOfInterest' });
+              }}
+              value={topicOfInterestOptions.filter(option => 
+                formData.topicOfInterest.includes(option.value)
+              )}
+              required
+              placeholder="Select topics of interest..."
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="learningGoal">Learning Goal:</label>
+            <Select
+              id="learningGoal"
+              name="learningGoal"
+              value={learningGoalOptions.find(option => option.value === formData.learningGoal) || null}
+              onChange={(value, actionMeta) => {
+                handleSelectChange(value, { name: 'learningGoal' });
+              }}
+              options={learningGoalOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              required
+              placeholder="Select your learning goal"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="weeklyTimeCommitment">Weekly Time Commitment:</label>
+            <Select
+              id="weeklyTimeCommitment"
+              name="weeklyTimeCommitment"
+              value={weeklyTimeCommitmentOptions.find(option => option.value === formData.weeklyTimeCommitment) || null}
+              onChange={(value, actionMeta) => {
+                handleSelectChange(value, { name: 'weeklyTimeCommitment' });
+              }}
+              options={weeklyTimeCommitmentOptions}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              required
+              placeholder="Select your weekly time commitment"
             />
           </div>
 
